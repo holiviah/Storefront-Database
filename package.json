@@ -1,0 +1,17 @@
+{
+  "name": "storefront-database",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:db:push": "prisma db push",
+    "check": "node src/index.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.0.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.0.0"
+  }
+}
