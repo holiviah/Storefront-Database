@@ -1,12 +1,15 @@
 {
   "name": "storefront-database",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "ReVamp Storefront",
+  "main": "server.js",
   "private": true,
   "type": "commonjs",
   "scripts": {
     "prisma:generate": "prisma generate",
     "prisma:db:push": "prisma db push",
-    "check": "node src/index.js"
+    "check": "node src/index.js",
+    "start": "node server.js"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0"
