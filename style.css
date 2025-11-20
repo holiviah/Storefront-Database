@@ -166,6 +166,7 @@ body{font-family: 'Alexandria', Inter, system-ui, -apple-system, 'Segoe UI', Rob
     align-items: center;
     max-width: 1200px;
     margin: 0 auto;
+    gap: 24px;
 }
 
 .public-header .logo {
