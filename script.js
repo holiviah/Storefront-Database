@@ -1,17 +1,26 @@
 // Simple product dashboard interactions (no backend)
 document.addEventListener('DOMContentLoaded', () => {
+    // Check if we're on the public page
+    if (window.location.pathname.includes('public.html') || document.getElementById('product-grid')) {
+        initializePage();
+        return;
+    }
+
 	const productsGrid = document.getElementById('productsGrid');
 	const productTemplate = document.getElementById('product-template');
 	const quickEditBtn = document.getElementById('quickEditBtn');
 	const arrangeBtn = document.getElementById('arrangeBtn');
 	const searchInput = document.getElementById('search');
 
+	if (!productsGrid) return; // Exit if not on admin page
+
 	let quickEditMode = false;
 
 	// seed some sample products
 	let products = [
 		{ id: cryptoRandomId(), title: 'Item 1', price: 19.99 },
-		{ id: cryptoRandomId(), title: 'Item 2', price: 25.99 },
+		{ id: cryptoRandomId(), title: 'Blue Shirt', price: 24.0 },
+		{ id: cryptoRandomId(), title: 'Sticker Pack', price: 5.5 }
 	];
 
 	function cryptoRandomId(){
@@ -70,13 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	saveProducts(products);
 });
 
-// hide checkboxes by default via CSS fallback
-try{
-	const style = document.createElement('style');
-	style.innerHTML = '.product-card .select{display:none}';
-	document.head.appendChild(style);
-}catch(e){}
-
 const STORAGE_KEY = 'revamp_products';
 
 function getProducts() {
@@ -91,6 +93,66 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function initializePage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+    
+    if (productId) {
+        showProductDetail(productId);
+    } else {
+        showProductGrid();
+    }
+}
+
+function showProductGrid() {
+    const gridView = document.getElementById('grid-view');
+    const productView = document.getElementById('product-view');
+    
+    if (gridView) gridView.style.display = 'block';
+    if (productView) productView.style.display = 'none';
+    
+    renderCategories();
+    renderPublicGrid();
+}
+
+function showProductDetail(productId) {
+    const product = getProducts().find(p => p.id === productId);
+    
+    if (!product) {
+        showProductGrid();
+        return;
+    }
+    
+    const gridView = document.getElementById('grid-view');
+    const productView = document.getElementById('product-view');
+    
+    if (gridView) gridView.style.display = 'none';
+    if (productView) productView.style.display = 'block';
+    
+    // Populate product details
+    const detailImage = document.getElementById('product-detail-image');
+    const detailTitle = document.getElementById('product-detail-title');
+    const detailPrice = document.getElementById('product-detail-price');
+    const detailDescription = document.getElementById('product-detail-description');
+    const backBtn = document.getElementById('back-btn');
+    
+    if (detailImage) {
+        detailImage.src = product.image || 'img/revamp.png';
+        detailImage.alt = product.name || product.title;
+    }
+    if (detailTitle) detailTitle.textContent = product.name || product.title;
+    if (detailPrice) detailPrice.textContent = `$${product.price}`;
+    if (detailDescription) detailDescription.textContent = product.description || 'No description available.';
+    
+    // Back button functionality
+    if (backBtn) {
+        backBtn.onclick = function() {
+            window.history.pushState({}, '', 'public.html');
+            showProductGrid();
+        };
+    }
 }
 
 function renderCategories() {
@@ -129,11 +191,23 @@ function renderPublicGrid(filterCategory = 'all') {
     }
     
     grid.innerHTML = products.map(product => `
-        <a class="product-card" href="product.html?id=${encodeURIComponent(product.id)}">
-            <img src="${escapeHtml(product.image || 'img/revamp.png')}" alt="${escapeHtml(product.name)}" />
+        <a class="product-card" href="javascript:void(0)" onclick="navigateToProduct('${product.id}')">
+            <img src="${escapeHtml(product.image || 'img/revamp.png')}" alt="${escapeHtml(product.name || product.title)}" />
             <div class="title">${escapeHtml(product.name || product.title)}</div>
             <div class="price">$${escapeHtml(product.price)}</div>
         </a>
     `).join('');
 }
+
+function navigateToProduct(productId) {
+    window.history.pushState({}, '', `public.html?id=${encodeURIComponent(productId)}`);
+    showProductDetail(productId);
+}
+
+// hide checkboxes by default via CSS fallback
+try{
+    const style = document.createElement('style');
+    style.innerHTML = '.product-card .select{display:none}';
+    document.head.appendChild(style);
+}catch(e){}
 
