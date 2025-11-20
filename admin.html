@@ -44,9 +44,78 @@
                 </div>
             </div>
 
-            <section class="products-grid" id="productsGrid">
-                <!-- Add product card and product cards will be injected here -->
-            </section>
+                        <section class="products-grid" id="productsGrid">
+                                <!-- Add product card and product cards will be injected here -->
+                        </section>
+
+                        <!-- Edit Product SPA Section (hidden by default) -->
+                        <div id="editProductSection" class="spa-edit-section" style="display:none;">
+                            <header class="page-header edit-header">
+                                <div style="display:flex;align-items:center;gap:16px">
+                                    <button type="button" id="backToDashboard" class="back-link">←</button>
+                                    <h2>EDIT PRODUCT</h2>
+                                </div>
+                                <div class="edit-actions">
+                                    <button class="btn btn-ghost">Delete</button>
+                                    <button class="btn btn-primary">SAVE ITEM</button>
+                                </div>
+                            </header>
+                            <section class="edit-content">
+                                <form class="edit-form">
+                                    <div class="grid-columns">
+                                        <div class="left-column">
+                                            <div class="top-block">
+                                                <label>Product Name
+                                                    <input type="text" placeholder="Title">
+                                                </label>
+                                                <label>Product Description
+                                                    <textarea placeholder="Insert text ..."></textarea>
+                                                </label>
+                                            </div>
+                                            <label>Category
+                                                <button class="selector">Select</button>
+                                            </label>
+                                            <label>Variations
+                                                <button class="selector">Select</button>
+                                            </label>
+                                            <label>Price
+                                                <div class="input-inline">
+                                                    <input type="text" placeholder="$0.00" aria-label="price amount">
+                                                    <select class="currency-select" aria-label="currency">
+                                                        <option value="CAD">CAD $</option>
+                                                        <option value="USD">USD $</option>
+                                                        <option value="EUR">EUR €</option>
+                                                        <option value="GBP">GBP £</option>
+                                                    </select>
+                                                </div>
+                                            </label>
+                                            <label>Shipping
+                                                <div class="input-inline">
+                                                    <input type="text" placeholder="$0.00" aria-label="shipping amount">
+                                                    <select class="shipping-select" aria-label="shipping type">
+                                                        <option value="domestic">Domestic</option>
+                                                        <option value="international">International</option>
+                                                        <option value="custom">Custom</option>
+                                                    </select>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <aside class="right-column">
+                                            <label>Upload Image</label>
+                                            <div class="upload-large"></div>
+                                            <label>Status
+                                                <select>
+                                                    <option>Active</option>
+                                                    <option>Hidden</option>
+                                                    <option>Sold Out</option>
+                                                    <option>Preorder Now</option>
+                                                </select>
+                                            </label>
+                                        </aside>
+                                    </div>
+                                </form>
+                            </section>
+                        </div>
         </main>
     </div>
 

@@ -63,10 +63,21 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	function onAddProduct(){
-		// Navigate to the Edit/Add Product UI page (UI-only)
-		window.location.href = 'edit-product.html';
-	}
+    function onAddProduct(){
+        // SPA: Hide dashboard, show edit-product section
+        document.querySelector('.products-grid').style.display = 'none';
+        const editSection = document.getElementById('editProductSection');
+        if(editSection) editSection.style.display = 'block';
+    }
+
+    // SPA: Back to dashboard from edit-product
+    document.addEventListener('click', function(e){
+        if(e.target && e.target.id === 'backToDashboard'){
+            document.querySelector('.products-grid').style.display = '';
+            const editSection = document.getElementById('editProductSection');
+            if(editSection) editSection.style.display = 'none';
+        }
+    });
 
 	quickEditBtn.addEventListener('click', () => {
 		quickEditMode = !quickEditMode;
