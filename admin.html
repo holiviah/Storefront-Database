@@ -8,18 +8,59 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<nav>
-    <div class="nav-header">
-        <img src="img/revamp.png" alt="ReVamp Logo" class="logo">
-    <ul class="navbuttons">
-        <li><button>Dashboard</button></li>
-        <li><button>Orders</button></li>
-        <li><button>Products</button></li>
-        <li><button>Discounts</button></li>
-        <li><button>Shop Settings</button></li>
-    </ul>
+    </nav>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <img src="img/revamp.png" alt="ReVamp Logo" class="logo">
+            <ul class="sidebar-menu">
+                <li class="active">Dashboard</li>
+                <li>Orders</li>
+                <li class="active-item">Products</li>
+                <li>Discounts</li>
+                <li>Shop Settings</li>
+            </ul>
+        </aside>
+
+        <main class="main-area">
+            <header class="page-header">
+                <h1>PRODUCTS</h1>
+                <div class="search-row">
+                    <input id="search" placeholder="Search" />
+                </div>
+                <div class="view-store">
+                    <a href="public.html" class="view-store-btn" target="_blank" rel="noopener">View storefront</a>
+                </div>
+            </header>
+
+            <div class="controls">
+                <div class="tabs">
+                    <button class="tab active">Products</button>
+                    <button class="tab">Collections</button>
+                </div>
+                <div class="actions">
+                    <button id="quickEditBtn" class="pill">Quick edit</button>
+                    <button id="arrangeBtn" class="pill">Arrange shop</button>
+                </div>
+            </div>
+
+            <section class="products-grid" id="productsGrid">
+                <!-- Add product card and product cards will be injected here -->
+            </section>
+        </main>
     </div>
-</nav>
-<script src="script.js"></script>
+
+    <template id="product-template">
+        <div class="product-card">
+            <div class="thumb">
+                <div class="placeholder">Image</div>
+            </div>
+            <div class="meta">
+                <div class="title">Product Title</div>
+                <div class="price">$0.00</div>
+            </div>
+        </div>
+    </template>
+
+    <script src="script.js"></script>
 </body>
 </html>

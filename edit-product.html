@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edit Product — ReVamp</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="dashboard">
+      <aside class="sidebar">
+        <img src="img/revamp.png" alt="ReVamp Logo" class="logo">
+        <ul class="sidebar-menu">
+          <li>Dashboard</li>
+          <li>Orders</li>
+          <li class="active-item">Products</li>
+          <li>Discounts</li>
+          <li>Shop Settings</li>
+        </ul>
+      </aside>
+
+      <main class="main-area edit-page">
+        <header class="page-header edit-header">
+          <div style="display:flex;align-items:center;gap:16px">
+            <a href="admin.html" class="back-link">←</a>
+            <h2>EDIT PRODUCT</h2>
+          </div>
+          <div class="edit-actions">
+            <button class="btn btn-ghost">Delete</button>
+            <button class="btn btn-primary">SAVE ITEM</button>
+          </div>
+        </header>
+
+        <section class="edit-content">
+          <form class="edit-form">
+            <div class="grid-columns">
+              <div class="left-column">
+                <label>Product Name
+                  <input type="text" placeholder="Title">
+                </label>
+
+                <label>Product Description
+                  <textarea placeholder="Insert text ..."></textarea>
+                </label>
+
+                <label>Category
+                  <button class="selector">Select</button>
+                </label>
+
+                <label>Variations
+                  <button class="selector">Select</button>
+                </label>
+
+                <label>Price
+                  <div class="input-inline"><input type="text" placeholder="$0.00"><span class="select-currency">CAD ▾</span></div>
+                </label>
+
+                <label>Shipping
+                  <div class="input-inline"><input type="text" placeholder="$0.00"><span class="select-currency">Domestic ▾</span></div>
+                </label>
+              </div>
+
+              <aside class="right-column">
+                <div class="upload-large">
+                  <div class="upload-icon">📷</div>
+                </div>
+                <div class="upload-row">
+                  <div class="upload-thumb">+</div>
+                  <div class="upload-thumb">+</div>
+                  <div class="upload-thumb">+</div>
+                </div>
+
+                <label>Status
+                  <select>
+                    <option>Hidden</option>
+                    <option>Published</option>
+                  </select>
+                </label>
+              </aside>
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
