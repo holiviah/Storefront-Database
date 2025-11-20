@@ -11,8 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	// seed some sample products
 	let products = [
 		{ id: cryptoRandomId(), title: 'Item 1', price: 19.99 },
-		{ id: cryptoRandomId(), title: 'Blue Shirt', price: 24.0 },
-		{ id: cryptoRandomId(), title: 'Sticker Pack', price: 5.5 }
+		{ id: cryptoRandomId(), title: 'Item 2', price: 25.99 },
 	];
 
 	function cryptoRandomId(){
