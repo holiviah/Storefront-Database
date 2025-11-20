@@ -43,6 +43,14 @@ document.addEventListener('DOMContentLoaded', () => {
 			const node = productTemplate.content.cloneNode(true);
 			const card = node.querySelector('.product-card');
 			card.dataset.id = p.id;
+			
+			// Replace placeholder div with actual image
+			const thumb = card.querySelector('.thumb');
+			thumb.innerHTML = `
+				<img src="${p.image || 'img/placeholder.png'}" alt="${p.title}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
+				<input class="select" type="checkbox" />
+			`;
+			
 			card.querySelector('.title').textContent = p.title;
 			card.querySelector('.price').textContent = `$${p.price.toFixed(2)}`;
 			const checkbox = card.querySelector('.select');
@@ -139,7 +147,7 @@ function showProductDetail(productId) {
     const backBtn = document.getElementById('back-btn');
     
     if (detailImage) {
-        detailImage.src = product.image || 'img/revamp.png';
+        detailImage.src = product.image || 'img/placeholder.png';
         detailImage.alt = product.name || product.title;
     }
     if (detailTitle) detailTitle.textContent = product.name || product.title;
@@ -192,7 +200,7 @@ function renderPublicGrid(filterCategory = 'all') {
     
     grid.innerHTML = products.map(product => `
         <a class="product-card" href="javascript:void(0)" onclick="navigateToProduct('${product.id}')">
-            <img src="${escapeHtml(product.image || 'img/revamp.png')}" alt="${escapeHtml(product.name || product.title)}" />
+            <img src="${escapeHtml(product.image || 'img/placeholder.png')}" alt="${escapeHtml(product.name || product.title)}" />
             <div class="title">${escapeHtml(product.name || product.title)}</div>
             <div class="price">$${escapeHtml(product.price)}</div>
         </a>
