@@ -102,7 +102,7 @@ body{font-family: 'Alexandria', Inter, system-ui, -apple-system, 'Segoe UI', Rob
 .btn{padding:8px 14px; border-radius:8px; border:0; cursor:pointer}
 .btn-ghost{background:#e6e6e6}
 .btn-primary{background:#fff; border:1px solid #e6e6e6}
-.edit-content{background:#f6f6f7; padding:28px; border-radius:12px; box-shadow:0 1px 0 rgba(0,0,0,0.02); max-width:1100px}
+.edit-content{background:#f6f6f7; padding:28px; border-radius:12px; box-shadow:0 1px 0 rgba(0,0,0,0.02); width:100%; box-sizing:border-box; max-width:none}
 .grid-columns{display:grid; grid-template-columns:1fr 360px; gap:28px; align-items:start}
 .left-column label{display:block; margin-bottom:18px; color:#333}
 .left-column input[type="text"], .left-column textarea{width:100%; padding:12px; border-radius:8px; border:1px solid #eaeaea; background:#fff}
