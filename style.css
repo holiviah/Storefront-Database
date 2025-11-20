@@ -103,10 +103,13 @@ body{font-family: 'Alexandria', Inter, system-ui, -apple-system, 'Segoe UI', Rob
 .btn-ghost{background:#e6e6e6}
 .btn-primary{background:#fff; border:1px solid #e6e6e6}
 .edit-content{background:#f6f6f7; padding:28px; border-radius:12px; box-shadow:0 1px 0 rgba(0,0,0,0.02); width:100%; box-sizing:border-box; max-width:none}
-.grid-columns{display:grid; grid-template-columns:1fr 360px; gap:28px; align-items:start}
-.left-column label{display:block; margin-bottom:18px; color:#333}
+.grid-columns{display:grid; grid-template-columns:1fr 360px; gap:48px; align-items:start}
+.left-column label{display:block; margin-bottom:12px; color:#333}
+
+/* top block containing name + description — keep a controlled height so fields align with right column */
+.top-block{min-height:300px; display:flex; flex-direction:column; gap:12px}
 .left-column input[type="text"], .left-column textarea{width:100%; padding:12px; border-radius:8px; border:1px solid #eaeaea; background:#fff}
-.left-column textarea{min-height:140px}
+.left-column textarea{min-height:100px}
 .left-column .selector{display:inline-block; padding:8px 14px; border-radius:20px; background:#f0f0f0; border:0; margin-top:8px}
 .left-column .input-inline{display:flex; align-items:center; gap:10px}
 .left-column .input-inline input[type="text"]{flex:1}
