@@ -9,7 +9,8 @@
     "prisma:generate": "prisma generate",
     "prisma:db:push": "prisma db push",
     "check": "node src/index.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0"
