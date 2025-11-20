@@ -108,8 +108,34 @@ body{font-family: 'Alexandria', Inter, system-ui, -apple-system, 'Segoe UI', Rob
 .left-column input[type="text"], .left-column textarea{width:100%; padding:12px; border-radius:8px; border:1px solid #eaeaea; background:#fff}
 .left-column textarea{min-height:140px}
 .left-column .selector{display:inline-block; padding:8px 14px; border-radius:20px; background:#f0f0f0; border:0; margin-top:8px}
-.left-column .input-inline{display:flex; align-items:center; gap:8px}
-.left-column .select-currency{background:#f0f0f0; padding:8px 10px; border-radius:8px}
+.left-column .input-inline{display:flex; align-items:center; gap:10px}
+.left-column .input-inline input[type="text"]{flex:1}
+
+/* unified input + select sizing */
+.left-column .input-inline input[type="text"],
+.left-column .input-inline select{
+    height:44px;
+    border-radius:8px;
+    border:1px solid #e6e6e6;
+    padding:0 12px;
+    background:#fff;
+    font-size:15px;
+}
+
+.left-column .input-inline select{width:120px; appearance:none; -webkit-appearance:none; background-repeat:no-repeat}
+.currency-select{width:110px}
+.shipping-select{width:150px}
+
+/* add chevron icon inside selects (uses inline SVG data URI) */
+.left-column .input-inline select{
+    padding-right:36px; /* room for chevron */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%236b7280' d='M5.23 7.21a.75.75 0 011.06 0L10 10.92l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.23 8.27a.75.75 0 010-1.06z'/%3E%3C/svg%3E");
+    background-position: right 12px center;
+    background-size: 12px 12px;
+}
+
+.left-column .input-inline select:focus,
+.left-column .input-inline input[type="text"]:focus{outline:3px solid rgba(99,102,241,0.12)}
 .right-column{width:360px}
 .upload-large{height:260px; border-radius:8px; background:#f3f3f3; display:flex; align-items:center; justify-content:center; border:1px dashed #e6e6e6}
 .upload-icon{font-size:36px}

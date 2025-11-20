@@ -52,22 +52,32 @@
                 </label>
 
                 <label>Price
-                  <div class="input-inline"><input type="text" placeholder="$0.00"><span class="select-currency">CAD ▾</span></div>
+                  <div class="input-inline">
+                    <input type="text" placeholder="$0.00" aria-label="price amount">
+                    <select class="currency-select" aria-label="currency">
+                      <option value="CAD">CAD $</option>
+                      <option value="USD">USD $</option>
+                      <option value="EUR">EUR €</option>
+                      <option value="GBP">GBP £</option>
+                    </select>
+                  </div>
                 </label>
 
                 <label>Shipping
-                  <div class="input-inline"><input type="text" placeholder="$0.00"><span class="select-currency">Domestic ▾</span></div>
+                  <div class="input-inline">
+                    <input type="text" placeholder="$0.00" aria-label="shipping amount">
+                    <select class="shipping-select" aria-label="shipping type">
+                      <option value="domestic">Domestic</option>
+                      <option value="international">International</option>
+                      <option value="custom">Custom</option>
+                    </select>
+                  </div>
                 </label>
               </div>
 
               <aside class="right-column">
+                <label>Upload Image</label>
                 <div class="upload-large">
-                  <div class="upload-icon">📷</div>
-                </div>
-                <div class="upload-row">
-                  <div class="upload-thumb">+</div>
-                  <div class="upload-thumb">+</div>
-                  <div class="upload-thumb">+</div>
                 </div>
 
                 <label>Status
