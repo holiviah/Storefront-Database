@@ -47,9 +47,18 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	function onAddProduct(){
-		// Navigate to the Edit/Add Product UI page (UI-only)
-		window.location.href = 'edit-product.html';
+		// Show the edit product panel/modal instead of navigating
+		const panel = document.getElementById('editProductPanel');
+		if(panel) panel.style.display = 'flex';
 	}
+
+	// Hide the edit product panel when clicking the back arrow
+	document.addEventListener('click', function(e){
+		if(e.target && e.target.id === 'closeEditPanel'){
+			const panel = document.getElementById('editProductPanel');
+			if(panel) panel.style.display = 'none';
+		}
+	});
 
 	quickEditBtn.addEventListener('click', () => {
 		quickEditMode = !quickEditMode;
