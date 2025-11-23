@@ -8,26 +8,57 @@
 		<link rel="stylesheet" href="style.css">
 	</head>
 	<body>
-		<header class="public-header">
-			<div class="header-content">
-				<img src="img/revamp.png" alt="ReVamp Logo" class="logo">
-				<div class="search-row">
-					<input id="public-search" placeholder="Search" />
+		<!-- Top Navigation -->
+		<nav class="top-nav">
+			<div class="nav-container">
+				<img src="img/revamp.png" alt="ReVamp Logo" class="nav-logo">
+				<ul class="nav-menu">
+					<li><a href="#" class="nav-link">Home</a></li>
+					<li><a href="#" class="nav-link">Collections</a></li>
+					<li><a href="#" class="nav-link active">Products</a></li>
+				</ul>
+				<div class="nav-actions">
+					<button class="cart-btn">View Cart</button>
+					<a href="admin.html" class="dev-view-btn-small">Dev View</a>
 				</div>
-				<a href="admin.html" class="dev-view-btn">Dev View</a>
 			</div>
-		</header>
-		<main class="public-main">
+		</nav>
+
+		<!-- Main Content -->
+		<main class="marketplace-main">
+			<!-- Page Header -->
+			<div class="page-title-section">
+				<h1 class="marketplace-title">[YOUR BUSINESS]'S MARKETPLACE</h1>
+				<div class="breadcrumb">
+					<span>Home</span> / <span class="current">Products</span>
+				</div>
+				<h2 class="products-title">PRODUCTS</h2>
+			</div>
+
 			<!-- Product Grid View -->
-			<div id="grid-view" class="main-content">
-				<aside class="categories-sidebar">
-					<h3>Categories</h3>
-					<div id="categories-list" class="categories-list">
-						<!-- Categories will be loaded here -->
+			<div id="grid-view" class="marketplace-content">
+				<!-- Left Sidebar -->
+				<aside class="filters-sidebar">
+					<h3>Filters</h3>
+					
+					<div class="filter-section">
+						<h4>Category</h4>
+						<div id="categories-list" class="filter-categories">
+							<!-- Categories will be loaded here -->
+						</div>
 					</div>
 				</aside>
-				<div id="product-grid" class="product-grid">
-					<!-- Products will be loaded here by JavaScript -->
+
+				<!-- Main Products Area -->
+				<div class="products-main">
+					<div class="products-header">
+						<div class="search-container">
+							<input id="public-search" placeholder="Search" class="search-input" />
+						</div>
+					</div>
+					<div id="product-grid" class="products-grid">
+						<!-- Products will be loaded here by JavaScript -->
+					</div>
 				</div>
 			</div>
 
