@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    </nav>
     <div class="dashboard">
         <aside class="sidebar">
             <img src="img/revamp.png" alt="ReVamp Logo" class="logo">
@@ -62,27 +61,35 @@
                                 </div>
                             </header>
                             <section class="edit-content">
-                                <form class="edit-form">
+                                <form id="editForm" class="edit-form" enctype="multipart/form-data">
                                     <div class="grid-columns">
                                         <div class="left-column">
                                             <div class="top-block">
                                                 <label>Product Name
-                                                    <input type="text" placeholder="Title">
+                                                    <input id="title" name="title" type="text" placeholder="Title">
                                                 </label>
                                                 <label>Product Description
-                                                    <textarea placeholder="Insert text ..."></textarea>
+                                                    <textarea id="description" name="description" placeholder="Insert text ..."></textarea>
                                                 </label>
                                             </div>
                                             <label>Category
-                                                <button class="selector">Select</button>
+                                                <div class="input-inline">
+                                                    <input id="categoryInput" type="text" placeholder="Add category">
+                                                    <button type="button" id="addCategoryBtn" class="selector">Add</button>
+                                                </div>
+                                                <div id="categoryChips" class="chip-list"></div>
                                             </label>
                                             <label>Variations
-                                                <button class="selector">Select</button>
+                                                <div class="input-inline">
+                                                    <input id="variationInput" type="text" placeholder="Add variation">
+                                                    <button type="button" id="addVariationBtn" class="selector">Add</button>
+                                                </div>
+                                                <div id="variationChips" class="chip-list"></div>
                                             </label>
                                             <label>Price
                                                 <div class="input-inline">
-                                                    <input type="text" placeholder="$0.00" aria-label="price amount">
-                                                    <select class="currency-select" aria-label="currency">
+                                                    <input id="price" name="price" type="text" placeholder="$0.00" aria-label="price amount">
+                                                    <select id="currency" name="currency" class="currency-select" aria-label="currency">
                                                         <option value="CAD">CAD $</option>
                                                         <option value="USD">USD $</option>
                                                         <option value="EUR">EUR €</option>
@@ -92,8 +99,8 @@
                                             </label>
                                             <label>Shipping
                                                 <div class="input-inline">
-                                                    <input type="text" placeholder="$0.00" aria-label="shipping amount">
-                                                    <select class="shipping-select" aria-label="shipping type">
+                                                    <input id="shipping" name="shipping" type="text" placeholder="$0.00" aria-label="shipping amount">
+                                                    <select id="shippingType" name="shippingType" class="shipping-select" aria-label="shipping type">
                                                         <option value="domestic">Domestic</option>
                                                         <option value="international">International</option>
                                                         <option value="custom">Custom</option>
@@ -102,14 +109,23 @@
                                             </label>
                                         </div>
                                         <aside class="right-column">
-                                            <label>Upload Image</label>
-                                            <div class="upload-large"></div>
+                                            <label>Upload Image(s)</label>
+                                            <div class="upload-large">
+                                                <!-- keep native file input but hide it; preserve name for form submission -->
+                                                <input id="images" name="images" type="file" accept="image/*" multiple style="display:none;" />
+                                                <div class="upload-dropzone" role="button" tabindex="0">
+                                                    <div class="upload-icon-circle">⤴︎</div>
+                                                    <div class="upload-title">Click to choose an image or drag here</div>
+                                                    <div class="upload-sub">Accepted file types: gif, png, jpg, webp</div>
+                                                    <div class="upload-sub">Size limit: 10 MB</div>
+                                                </div>
+                                            </div>
                                             <label>Status
-                                                <select>
-                                                    <option>Active</option>
-                                                    <option>Hidden</option>
-                                                    <option>Sold Out</option>
-                                                    <option>Preorder Now</option>
+                                                <select id="status" name="status">
+                                                    <option value="active">Active</option>
+                                                    <option value="hidden">Hidden</option>
+                                                    <option value="soldout">Sold Out</option>
+                                                    <option value="preorder">Preorder Now</option>
                                                 </select>
                                             </label>
                                         </aside>
