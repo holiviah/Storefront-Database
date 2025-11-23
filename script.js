@@ -339,11 +339,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-	quickEditBtn.addEventListener('click', () => {
-		quickEditMode = !quickEditMode;
-		quickEditBtn.textContent = quickEditMode ? 'Done' : 'Quick edit';
-		document.querySelectorAll('.product-card .select').forEach(cb => cb.style.display = quickEditMode ? 'block' : 'none');
-	});
+    quickEditBtn.addEventListener('click', () => {
+        quickEditMode = !quickEditMode;
+        quickEditBtn.textContent = quickEditMode ? 'Done' : 'Quick edit';
+        // Toggle body class; CSS controls checkbox visibility
+        document.body.classList.toggle('quick-edit-mode', quickEditMode);
+    });
 
 	arrangeBtn.addEventListener('click', () => {
 		alert('Arrange shop — drag & drop would go here (not implemented)');

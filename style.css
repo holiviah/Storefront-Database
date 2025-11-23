@@ -202,6 +202,10 @@ input, select, textarea, button {
 /* small remove button style fallback */
 .preview-remove{display:inline-flex; align-items:center; justify-content:center}
 
+/* Hide product select checkboxes by default; show only in quick-edit mode */
+.product-card .select { display: none; }
+.quick-edit-mode .product-card .select { display: block; }
+
 @media (max-width:1000px){
     .form-row{flex-direction:column}
     .right-column{width:100%}
