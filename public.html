@@ -18,7 +18,7 @@
 					<li><a href="#" class="nav-link active">Products</a></li>
 				</ul>
 				<div class="nav-actions">
-					<button class="cart-btn">View Cart</button>
+					<button id="cart-btn" class="cart-btn">View Cart (<span id="cart-count">0</span>)</button>
 					<a href="admin.html" class="dev-view-btn-small">Dev View</a>
 				</div>
 			</div>
@@ -37,19 +37,7 @@
 
 			<!-- Product Grid View -->
 			<div id="grid-view" class="marketplace-content">
-				<!-- Left Sidebar -->
-				<aside class="filters-sidebar">
-					<h3>Filters</h3>
-					
-					<div class="filter-section">
-						<h4>Category</h4>
-						<div id="categories-list" class="filter-categories">
-							<!-- Categories will be loaded here -->
-						</div>
-					</div>
-				</aside>
-
-				<!-- Main Products Area -->
+				<!-- Main Products Area (no sidebar) -->
 				<div class="products-main">
 					<div class="products-header">
 						<div class="search-container">
@@ -68,13 +56,66 @@
 					<button id="back-btn" class="back-button">← Back to Products</button>
 					<div class="product-detail-content">
 						<div class="product-image-section">
-							<img id="product-detail-image" src="" alt="" class="product-detail-img">
+							<div class="product-image-gallery">
+								<img id="product-detail-image" src="" alt="" class="product-detail-img">
+								<div class="image-thumbnails">
+									<!-- Additional thumbnails can go here -->
+								</div>
+							</div>
 						</div>
 						<div class="product-info-section">
-							<h1 id="product-detail-title"></h1>
-							<div id="product-detail-price" class="product-detail-price"></div>
-							<div id="product-detail-description" class="product-description"></div>
-							<button class="add-to-cart-btn">Add to Cart</button>
+							<h1 id="product-detail-title">PRODUCT TITLE</h1>
+							<div class="product-price-status">
+								<div id="product-detail-price" class="product-detail-price">$ XX</div>
+								<div class="product-status">Status</div>
+							</div>
+							<div class="product-options">
+								<select class="product-select">
+									<option>Select Options</option>
+								</select>
+								<button id="add-to-cart-btn" class="add-to-cart-btn">Add to Cart</button>
+							</div>
+							<div class="product-description-section">
+								<h3>Product Description</h3>
+								<div id="product-detail-description" class="product-description"></div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Other Products Section -->
+					<div class="other-products-section">
+						<h2>OTHER PRODUCTS</h2>
+						<div id="other-products-grid" class="other-products-grid">
+							<!-- Related products will be loaded here -->
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Cart Popup Modal -->
+			<div id="cart-modal" class="cart-modal" style="display: none;">
+				<div class="cart-modal-overlay" onclick="closeCart()"></div>
+				<div class="cart-modal-content">
+					<div class="cart-modal-header">
+						<h2>Your Cart</h2>
+						<button class="close-cart-btn" onclick="closeCart()">×</button>
+					</div>
+					<div class="cart-modal-body">
+						<div id="cart-items" class="cart-items">
+							<!-- Cart items will be loaded here -->
+						</div>
+						<div class="cart-summary">
+							<div class="cart-total">
+								<div class="total-line">
+									<span>Subtotal:</span>
+									<span id="cart-subtotal">$0.00</span>
+								</div>
+								<div class="total-line total-final">
+									<span>Total:</span>
+									<span id="cart-total">$0.00</span>
+								</div>
+							</div>
+							<button class="checkout-btn" onclick="alert('Checkout functionality coming soon!')">Proceed to Checkout</button>
 						</div>
 					</div>
 				</div>

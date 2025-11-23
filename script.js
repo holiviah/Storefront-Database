@@ -60,41 +60,44 @@ document.addEventListener('DOMContentLoaded', () => {
 		return Math.random().toString(36).slice(2,9)
 	}
 
-    function render(){
-		productsGrid.innerHTML = '';
+    async function render() {
+        products = await getProducts(); // Always fetch fresh data
+        productsGrid.innerHTML = '';
 
-		// add product card
-		const addCard = document.createElement('div');
-		addCard.className = 'add-card';
-		addCard.innerHTML = `<div style="text-align:center"><div class="plus">+</div><div>Add Product</div></div>`;
-		addCard.addEventListener('click', onAddProduct);
-		productsGrid.appendChild(addCard);
+        // Add product card
+        const addCard = document.createElement('div');
+        addCard.className = 'add-card';
+        addCard.innerHTML = `<div style="text-align:center"><div class="plus">+</div><div>Add Product</div></div>`;
+        addCard.addEventListener('click', onAddProduct);
+        productsGrid.appendChild(addCard);
 
-        const query = (searchInput.value || '').toLowerCase();
-
-        products.filter(p => (p.title || '').toLowerCase().includes(query)).forEach(p => {
-			const node = productTemplate.content.cloneNode(true);
-			const card = node.querySelector('.product-card');
-			card.dataset.id = p.id;
-			
-			// Replace placeholder div with actual image
-			const thumb = card.querySelector('.thumb');
-			thumb.innerHTML = `
-                <img src="${p.images && p.images.length ? p.images[0] : (p.image || 'img/placeholder.png')}" alt="${p.title}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
-				<input class="select" type="checkbox" />
-			`;
-			
-			card.querySelector('.title').textContent = p.title;
-			card.querySelector('.price').textContent = `$${p.price.toFixed(2)}`;
-			const checkbox = card.querySelector('.select');
-			checkbox.addEventListener('change', () => {
-				if(quickEditMode){
-					checkbox.parentElement.style.outline = checkbox.checked ? '2px solid #60a5fa' : 'none';
-				}
-			});
-			productsGrid.appendChild(node);
-		});
-	}
+        products.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.style.cursor = 'pointer';
+            card.innerHTML = `
+                <div class="thumb">
+                    <img src="${p.image || 'img/placeholder.png'}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
+                    <input class="select" type="checkbox" />
+                </div>
+                <div class="meta">
+                    <div class="title">${p.name}</div>
+                    <div class="price">$${parseFloat(p.price).toFixed(2)}</div>
+                </div>
+            `;
+            
+            // Make product card clickable to view product page
+            card.addEventListener('click', (e) => {
+                // Don't navigate if clicking on checkbox
+                if (e.target.type === 'checkbox') return;
+                
+                // Open product page in public view
+                window.open(`public.html?id=${encodeURIComponent(p._id)}`, '_blank');
+            });
+            
+            productsGrid.appendChild(card);
+        });
+    }
 
     function onAddProduct(){
         // SPA: Hide dashboard, show edit-product section
@@ -385,52 +388,68 @@ function initializePage() {
     }
 }
 
-function showProductGrid() {
-    const gridView = document.getElementById('grid-view');
-    const productView = document.getElementById('product-view');
-    
-    if (gridView) gridView.style.display = 'block';
-    if (productView) productView.style.display = 'none';
-    
-    renderCategories();
-    renderPublicGrid();
-}
-
-function showProductDetail(productId) {
-    const product = getProducts().find(p => p.id === productId);
-    
-    if (!product) {
-        showProductGrid();
-        return;
-    }
-    
-    const gridView = document.getElementById('grid-view');
-    const productView = document.getElementById('product-view');
-    
-    if (gridView) gridView.style.display = 'none';
-    if (productView) productView.style.display = 'block';
-    
-    // Populate product details
-    const detailImage = document.getElementById('product-detail-image');
-    const detailTitle = document.getElementById('product-detail-title');
-    const detailPrice = document.getElementById('product-detail-price');
-    const detailDescription = document.getElementById('product-detail-description');
-    const backBtn = document.getElementById('back-btn');
-    
-    if (detailImage) {
-        detailImage.src = product.image || 'img/placeholder.png';
-        detailImage.alt = product.name || product.title;
-    }
-    if (detailTitle) detailTitle.textContent = product.name || product.title;
-    if (detailPrice) detailPrice.textContent = `$${product.price}`;
-    if (detailDescription) detailDescription.textContent = product.description || 'No description available.';
-    
-    // Back button functionality
-    if (backBtn) {
-        backBtn.onclick = function() {
-            window.history.pushState({}, '', 'public.html');
+async function showProductDetail(productId) {
+    try {
+        const products = await getProducts();
+        
+        if (!Array.isArray(products)) {
+            console.error('Products is not an array:', products);
             showProductGrid();
-        };
+            return;
+        }
+        
+        const product = products.find(p => p._id === productId);
+        
+        if (!product) {
+            console.error('Product not found:', productId);
+            showProductGrid();
+            return;
+        }
+        
+        const gridView = document.getElementById('grid-view');
+        const productView = document.getElementById('product-view');
+        
+        if (gridView) gridView.style.display = 'none';
+        if (productView) productView.style.display = 'block';
+        
+        // Populate product details
+        const detailImage = document.getElementById('product-detail-image');
+        const detailTitle = document.getElementById('product-detail-title');
+        const detailPrice = document.getElementById('product-detail-price');
+        const detailDescription = document.getElementById('product-detail-description');
+        const backBtn = document.getElementById('back-btn');
+        
+        if (detailImage) {
+            detailImage.src = product.image || 'img/placeholder.png';
+            detailImage.alt = product.name || product.title;
+        }
+        if (detailTitle) detailTitle.textContent = product.name || product.title;
+        if (detailPrice) detailPrice.textContent = `$ ${parseFloat(product.price).toFixed(2)}`;
+        if (detailDescription) detailDescription.textContent = product.description || 'No description available.';
+        
+        // Set up add to cart button
+        const addToCartBtn = document.getElementById('add-to-cart-btn');
+        if (addToCartBtn) {
+            addToCartBtn.onclick = function(e) {
+                e.preventDefault();
+                console.log('Add to cart clicked for product:', productId);
+                addToCart(productId);
+            };
+        }
+        
+        // Load other products (excluding current one)
+        await loadOtherProducts(productId, products);
+        
+        // Back button functionality
+        if (backBtn) {
+            backBtn.onclick = function() {
+                window.history.pushState({}, '', 'public.html');
+                showProductGrid();
+            };
+        }
+    } catch (error) {
+        console.error('Error showing product detail:', error);
+        showProductGrid();
     }
 }
 
@@ -467,6 +486,12 @@ async function renderPublicGrid(filterCategory = 'all', searchQuery = '') {
     try {
         let products = await getProducts();
         
+        // Ensure products is an array
+        if (!Array.isArray(products)) {
+            console.error('Products is not an array:', products);
+            products = [];
+        }
+        
         // Apply filters
         if (filterCategory !== 'all') {
             products = products.filter(p => p.category === filterCategory);
@@ -485,11 +510,11 @@ async function renderPublicGrid(filterCategory = 'all', searchQuery = '') {
         }
         
         grid.innerHTML = products.map(product => `
-            <a class="product-card" href="javascript:void(0)" onclick="navigateToProduct('${product._id}')">
+            <div class="product-card" onclick="navigateToProduct('${product._id}')" style="cursor: pointer;">
                 <img src="${product.image || 'img/placeholder.png'}" alt="${product.name || product.title}" />
                 <div class="title">${escapeHtml(product.name || product.title)}</div>
                 <div class="price">$${parseFloat(product.price).toFixed(2)}</div>
-            </a>
+            </div>
         `).join('');
     } catch (error) {
         console.error('Error rendering products:', error);
@@ -497,11 +522,29 @@ async function renderPublicGrid(filterCategory = 'all', searchQuery = '') {
     }
 }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+function navigateToProduct(productId) {
+    window.history.pushState({}, '', `public.html?id=${encodeURIComponent(productId)}`);
+    showProductDetail(productId);
+}
+
+async function loadOtherProducts(currentProductId, allProducts) {
+    const otherProductsGrid = document.getElementById('other-products-grid');
+    if (!otherProductsGrid) return;
+    
+    const otherProducts = allProducts.filter(p => p._id !== currentProductId).slice(0, 4);
+    
+    if (!otherProducts.length) {
+        otherProductsGrid.innerHTML = '<p class="empty">No other products available.</p>';
+        return;
+    }
+    
+    otherProductsGrid.innerHTML = otherProducts.map(product => `
+        <div class="product-card" onclick="navigateToProduct('${product._id}')" style="cursor: pointer;">
+            <img src="${product.image || 'img/placeholder.png'}" alt="${product.name || product.title}" />
+            <div class="title">${escapeHtml(product.name || product.title)}</div>
+            <div class="price">$${parseFloat(product.price).toFixed(2)}</div>
+        </div>
+    `).join('');
 }
 
 // API functions
@@ -575,6 +618,152 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // ...existing code...
+    // Cart functionality
+let cart = JSON.parse(localStorage.getItem('revamp_cart') || '[]');
+
+function saveCart() {
+    localStorage.setItem('revamp_cart', JSON.stringify(cart));
+    updateCartCount();
+    console.log('Cart saved:', cart);
+}
+
+function updateCartCount() {
+    const cartCount = document.getElementById('cart-count');
+    if (cartCount) {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCount.textContent = totalItems;
+        console.log('Cart count updated:', totalItems);
+    }
+}
+
+async function addToCart(productId) {
+    console.log('Adding to cart:', productId);
+    
+    const products = await getProducts();
+    const product = products.find(p => p._id === productId);
+    
+    if (!product) {
+        alert('Product not found');
+        return;
+    }
+    
+    const existingItem = cart.find(item => item.productId === productId);
+    
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({
+            productId: productId,
+            quantity: 1,
+            name: product.name,
+            price: product.price,
+            image: product.image
+        });
+    }
+    
+    saveCart();
+    showCart();
+}
+
+function removeFromCart(productId) {
+    cart = cart.filter(item => item.productId !== productId);
+    saveCart();
+    renderCart();
+}
+
+function updateQuantity(productId, quantity) {
+    const item = cart.find(item => item.productId === productId);
+    if (item) {
+        item.quantity = Math.max(0, quantity);
+        if (item.quantity === 0) {
+            removeFromCart(productId);
+        } else {
+            saveCart();
+            renderCart();
+        }
+    }
+}
+
+async function renderCart() {
+    const cartItems = document.getElementById('cart-items');
+    const cartSubtotal = document.getElementById('cart-subtotal');
+    const cartTotal = document.getElementById('cart-total');
+    
+    if (!cartItems) return;
+    
+    if (cart.length === 0) {
+        cartItems.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
+        if (cartSubtotal) cartSubtotal.textContent = '$0.00';
+        if (cartTotal) cartTotal.textContent = '$0.00';
+        return;
+    }
+    
+    let subtotal = 0;
+    
+    cartItems.innerHTML = cart.map(item => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+        
+        return `
+            <div class="cart-item">
+                <img src="${item.image || 'img/placeholder.png'}" alt="${item.name}">
+                <div class="cart-item-info">
+                    <div class="cart-item-title">${item.name}</div>
+                    <div class="cart-item-price">$${item.price.toFixed(2)} each</div>
+                </div>
+                <div class="cart-item-controls">
+                    <div class="cart-item-quantity">
+                        <button class="quantity-btn" onclick="updateQuantity('${item.productId}', ${item.quantity - 1})">-</button>
+                        <input type="number" class="quantity-input" value="${item.quantity}" 
+                               onchange="updateQuantity('${item.productId}', parseInt(this.value))">
+                        <button class="quantity-btn" onclick="updateQuantity('${item.productId}', ${item.quantity + 1})">+</button>
+                    </div>
+                    <button class="remove-item-btn" onclick="removeFromCart('${item.productId}')">×</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    if (cartSubtotal) cartSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+    if (cartTotal) cartTotal.textContent = `$${subtotal.toFixed(2)}`;
+}
+
+function showCart() {
+    console.log('showCart called');
+    const cartModal = document.getElementById('cart-modal');
+    console.log('Cart modal element:', cartModal);
+    
+    if (cartModal) {
+        cartModal.style.display = 'flex';
+        renderCart();
+        console.log('Cart modal shown');
+    } else {
+        console.error('Cart modal not found');
+    }
+}
+
+function closeCart() {
+    const cartModal = document.getElementById('cart-modal');
+    if (cartModal) {
+        cartModal.style.display = 'none';
+    }
+}
+
+// Make functions global so they can be called from onclick handlers
+window.showCart = showCart;
+window.closeCart = closeCart;
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
+window.updateQuantity = updateQuantity;
 });
+
+async function showProductGrid() {
+    const gridView = document.getElementById('grid-view');
+    const productView = document.getElementById('product-view');
+    
+    if (gridView) gridView.style.display = 'block';
+    if (productView) productView.style.display = 'none';
+    
+    await renderPublicGrid();
+}
 
