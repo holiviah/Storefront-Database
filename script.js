@@ -244,7 +244,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     try { text = await res.text(); } catch (e) { text = String(e); }
                     throw new Error('Save failed: ' + (res ? `${res.status} ${res.statusText} - ${text}` : 'no response'));
                 }
-                const created = await res.json();
+                // Parse response safely: prefer JSON but fall back to text for better debugging
+                let created;
+                try {
+                    created = await res.json();
+                } catch (parseErr) {
+                    const txt = await res.text().catch(() => '<<unreadable response>>');
+                    console.warn('Failed to parse JSON response from /api/products:', parseErr, txt);
+                    throw new Error('Error saving product: Failed to parse server response: ' + String(txt));
+                }
                 // close edit view
                 document.querySelector('.products-grid').style.display = '';
                 document.body.classList.remove('hide-dashboard');
