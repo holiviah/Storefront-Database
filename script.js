@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function onAddProduct(){
         // SPA: Hide dashboard, show edit-product section
         document.querySelector('.products-grid').style.display = 'none';
+        document.body.classList.add('hide-dashboard');
         const editSection = document.getElementById('editProductSection');
         if(editSection) editSection.style.display = 'block';
     }
@@ -66,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', function(e){
         if(e.target && e.target.id === 'backToDashboard'){
             document.querySelector('.products-grid').style.display = '';
+            document.body.classList.remove('hide-dashboard');
             const editSection = document.getElementById('editProductSection');
             if(editSection) editSection.style.display = 'none';
         }
