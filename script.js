@@ -434,59 +434,147 @@ function showProductDetail(productId) {
     }
 }
 
-function renderCategories() {
+async function renderCategories() {
     const categoriesEl = document.getElementById('categories-list');
     if (!categoriesEl) return;
     
-    const products = getProducts();
-    const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
-    
-    categoriesEl.innerHTML = `
-        <div class="category-item active" data-category="all">All Products</div>
-        ${categories.map(cat => `<div class="category-item" data-category="${escapeHtml(cat)}">${escapeHtml(cat)}</div>`).join('')}
-    `;
-    
-    categoriesEl.querySelectorAll('.category-item').forEach(item => {
-        item.addEventListener('click', () => {
-            categoriesEl.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-            renderPublicGrid(item.dataset.category);
+    try {
+        const products = await getProducts();
+        const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+        
+        categoriesEl.innerHTML = `
+            <div class="category-item active" data-category="all">All Products</div>
+            ${categories.map(cat => `<div class="category-item" data-category="${escapeHtml(cat)}">${escapeHtml(cat)}</div>`).join('')}
+        `;
+        
+        categoriesEl.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', () => {
+                categoriesEl.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                renderPublicGrid(item.dataset.category);
+            });
         });
-    });
+    } catch (error) {
+        console.error('Error rendering categories:', error);
+        categoriesEl.innerHTML = '<div class="category-item active" data-category="all">All Products</div>';
+    }
 }
 
-function renderPublicGrid(filterCategory = 'all') {
+async function renderPublicGrid(filterCategory = 'all', searchQuery = '') {
     const grid = document.getElementById('product-grid');
     if (!grid) return;
     
-    let products = getProducts();
-    if (filterCategory !== 'all') {
-        products = products.filter(p => p.category === filterCategory);
+    try {
+        let products = await getProducts();
+        
+        // Apply filters
+        if (filterCategory !== 'all') {
+            products = products.filter(p => p.category === filterCategory);
+        }
+        
+        if (searchQuery) {
+            products = products.filter(p => 
+                (p.name || p.title || '').toLowerCase().includes(searchQuery) ||
+                (p.description || '').toLowerCase().includes(searchQuery)
+            );
+        }
+        
+        if (!products.length) {
+            grid.innerHTML = '<p class="empty">No products found.</p>';
+            return;
+        }
+        
+        grid.innerHTML = products.map(product => `
+            <a class="product-card" href="javascript:void(0)" onclick="navigateToProduct('${product._id}')">
+                <img src="${product.image || 'img/placeholder.png'}" alt="${product.name || product.title}" />
+                <div class="title">${escapeHtml(product.name || product.title)}</div>
+                <div class="price">$${parseFloat(product.price).toFixed(2)}</div>
+            </a>
+        `).join('');
+    } catch (error) {
+        console.error('Error rendering products:', error);
+        grid.innerHTML = '<p class="empty">Error loading products. Please try again.</p>';
     }
-    
-    if (!products.length) {
-        grid.innerHTML = '<p class="empty">No products available yet. Check back soon!</p>';
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// API functions
+async function getProducts() {
+    try {
+        const response = await fetch('/api/products');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        return [];
+    }
+}
+
+async function createProduct(productData) {
+    try {
+        const response = await fetch('/api/products', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(productData)
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Error creating product:', error);
+        throw error;
+    }
+}
+
+// Admin page functionality
+document.addEventListener('DOMContentLoaded', async () => {
+    // Check if we're on the public page
+    if (window.location.pathname.includes('public.html') || document.getElementById('product-grid')) {
+        await initializePage();
         return;
     }
+
+    // Admin page code
+    const productsGrid = document.getElementById('productsGrid');
+    const editSection = document.getElementById('editProductSection');
+    const backBtn = document.getElementById('backToDashboard');
     
-    grid.innerHTML = products.map(product => `
-        <a class="product-card" href="javascript:void(0)" onclick="navigateToProduct('${product.id}')">
-            <img src="${escapeHtml(product.image || 'img/placeholder.png')}" alt="${escapeHtml(product.name || product.title)}" />
-            <div class="title">${escapeHtml(product.name || product.title)}</div>
-            <div class="price">$${escapeHtml(product.price)}</div>
-        </a>
-    `).join('');
-}
+    if (!productsGrid) return;
 
-function navigateToProduct(productId) {
-    window.history.pushState({}, '', `public.html?id=${encodeURIComponent(productId)}`);
-    showProductDetail(productId);
-}
+    // Save button functionality
+    const saveBtn = editSection?.querySelector('.btn-primary');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            const form = editSection.querySelector('.edit-form');
+            const productData = {
+                name: form.querySelector('input[placeholder="Title"]').value,
+                description: form.querySelector('textarea').value,
+                price: form.querySelector('input[placeholder="$0.00"]').value,
+                category: 'General'
+            };
 
-// hide checkboxes by default via CSS fallback
-try{
-    const style = document.createElement('style');
-    style.innerHTML = '.product-card .select{display:none}';
-    document.head.appendChild(style);
-}catch(e){}
+            try {
+                await createProduct(productData);
+                await render();
+                hideEditSection();
+                alert('Product saved successfully!');
+            } catch (error) {
+                alert('Error saving product: ' + error.message);
+            }
+        });
+    }
+
+    // ...existing code...
+});
 
