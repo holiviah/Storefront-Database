@@ -137,15 +137,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // category and variation state
     let categories = [];
-    let variations = [];
+    // variationGroups: array of { id, name, tags: [] }
+    let variationGroups = [];
 
     // category/variation UI logic
     const categoryInput = document.getElementById('categoryInput');
     const addCategoryBtn = document.getElementById('addCategoryBtn');
     const categoryChips = document.getElementById('categoryChips');
-    const variationInput = document.getElementById('variationInput');
-    const addVariationBtn = document.getElementById('addVariationBtn');
-    const variationChips = document.getElementById('variationChips');
+
+    const variationsContainer = document.getElementById('variationsContainer');
+    const newVariationName = document.getElementById('newVariationName');
+    const addVariationTypeBtn = document.getElementById('addVariationTypeBtn');
+    const variationTemplate = document.getElementById('variation-group-template');
 
     function renderChips(list, container, type) {
         container.innerHTML = '';
@@ -167,6 +170,64 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function renderVariationGroups() {
+        if (!variationsContainer) return;
+        variationsContainer.innerHTML = '';
+        variationGroups.forEach((group, gi) => {
+            const node = variationTemplate.content.cloneNode(true);
+            const root = node.querySelector('.variation-group');
+            const nameInput = node.querySelector('.variation-name');
+            const removeBtn = node.querySelector('.remove-variation');
+            const tagInput = node.querySelector('.variation-tag-input');
+            const addTagBtn = node.querySelector('.add-variation-tag');
+            const tagsContainer = node.querySelector('.variation-tags');
+
+            nameInput.value = group.name;
+            nameInput.addEventListener('input', (e) => {
+                group.name = e.target.value;
+            });
+
+            removeBtn.addEventListener('click', () => {
+                variationGroups.splice(gi, 1);
+                renderVariationGroups();
+            });
+
+            function renderGroupTags() {
+                tagsContainer.innerHTML = '';
+                group.tags.forEach((t, ti) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'chip';
+                    chip.textContent = t;
+                    const rm = document.createElement('button');
+                    rm.type = 'button';
+                    rm.className = 'chip-remove';
+                    rm.innerHTML = '×';
+                    rm.title = 'Remove';
+                    rm.onclick = () => { group.tags.splice(ti, 1); renderGroupTags(); };
+                    chip.appendChild(rm);
+                    tagsContainer.appendChild(chip);
+                });
+            }
+
+            addTagBtn.addEventListener('click', () => {
+                const v = tagInput.value.trim();
+                if (v && !group.tags.includes(v)) {
+                    group.tags.push(v);
+                    tagInput.value = '';
+                    renderGroupTags();
+                }
+            });
+            tagInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); addTagBtn.click(); }
+            });
+
+            // initial render of tags
+            renderGroupTags();
+
+            variationsContainer.appendChild(root);
+        });
+    }
+
     if (addCategoryBtn && categoryInput && categoryChips) {
         addCategoryBtn.onclick = () => {
             const val = categoryInput.value.trim();
@@ -180,27 +241,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.key === 'Enter') { e.preventDefault(); addCategoryBtn.click(); }
         });
     }
-    if (addVariationBtn && variationInput && variationChips) {
-        addVariationBtn.onclick = () => {
-            const val = variationInput.value.trim();
-            if (val && !variations.includes(val)) {
-                variations.push(val);
-                renderChips(variations, variationChips, 'variation');
-                variationInput.value = '';
-            }
-        };
-        variationInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter') { e.preventDefault(); addVariationBtn.click(); }
+    if (addVariationTypeBtn && newVariationName) {
+        addVariationTypeBtn.addEventListener('click', () => {
+            const name = newVariationName.value.trim() || 'Variation';
+            variationGroups.push({ id: cryptoRandomId(), name, tags: [] });
+            newVariationName.value = '';
+            renderVariationGroups();
         });
+        newVariationName.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addVariationTypeBtn.click(); } });
     }
 
     // reset chips on form reset
     if (editForm) {
         editForm.addEventListener('reset', () => {
             categories = [];
-            variations = [];
+            variationGroups = [];
             renderChips(categories, categoryChips, 'category');
-            renderChips(variations, variationChips, 'variation');
+            renderVariationGroups();
         });
     }
 
@@ -220,9 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (Array.isArray(selectedFiles) && selectedFiles.length) {
                     selectedFiles.forEach(f => formData.append('images', f));
                 }
-                // append categories and variations as arrays
+                // append categories as arrays and variations as JSON
                 categories.forEach(cat => formData.append('categories[]', cat));
-                variations.forEach(vari => formData.append('variations[]', vari));
+                formData.append('variations', JSON.stringify(variationGroups));
             try {
                 // attempt to POST to the same origin first
                 let res;

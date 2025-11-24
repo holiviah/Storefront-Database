@@ -788,6 +788,23 @@ input, select, textarea, button {
     box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
 
+/* Variation section styles */
+.variation-section { margin-top: 12px; }
+.variation-header-row { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+.variation-title { font-weight:700; font-size:18px; }
+.variation-edit { background: none; border: none; color: #666; cursor: pointer; font-size:14px; }
+.variation-add-row { display:flex; gap:12px; align-items:center; margin-top:8px; }
+.variation-input { flex:1; height:44px; padding:12px; border-radius:8px; border:1px solid #e6e6e6; font-size:15px; background:#fff; }
+.variation-input:focus { outline: none; border-color: #c7d2fe; box-shadow: 0 0 0 4px rgba(99,102,241,0.12); background:#fff; }
+.btn-add-variation { background:#e9e9ef; border:0; padding:12px 22px; border-radius:24px; cursor:pointer; font-weight:600; }
+
+/* Variation group card */
+.variation-group { border:1px solid #eee; padding:12px; border-radius:10px; margin-bottom:12px; background:#fff }
+.variation-header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px }
+.variation-name { font-size:15px; padding:6px 10px; border-radius:8px; border:1px solid #eaeaea }
+.remove-variation { background:#f3f4f6; border:0; padding:6px 10px; border-radius:8px; cursor:pointer }
+.variation-tags .chip { margin-top:8px }
+
 .cart-modal-header {
     display: flex;
     justify-content: space-between;

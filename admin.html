@@ -72,20 +72,19 @@
                                                     <textarea id="description" name="description" placeholder="Insert text ..."></textarea>
                                                 </label>
                                             </div>
-                                            <label>Category
-                                                <div class="input-inline">
-                                                    <input id="categoryInput" type="text" placeholder="Add category">
-                                                    <button type="button" id="addCategoryBtn" class="selector">Add</button>
+                                            <div class="variation-section">
+                                                <div class="variation-header-row">
+                                                    <div class="variation-title">Variation(s)</div>
                                                 </div>
-                                                <div id="categoryChips" class="chip-list"></div>
-                                            </label>
-                                            <label>Variations
-                                                <div class="input-inline">
-                                                    <input id="variationInput" type="text" placeholder="Add variation">
-                                                    <button type="button" id="addVariationBtn" class="selector">Add</button>
+
+                                                <div id="variationsContainer"></div>
+
+                                                <div class="variation-add-row">
+                                                    <input id="newVariationName" class="variation-input" type="text" placeholder="Variation type">
+                                                    <button type="button" id="addVariationTypeBtn" class="btn-add-variation">Add</button>
                                                 </div>
-                                                <div id="variationChips" class="chip-list"></div>
-                                            </label>
+                                            </div>
+                                            <br>
                                             <label>Price
                                                 <div class="input-inline">
                                                     <input id="price" name="price" type="text" placeholder="$0.00" aria-label="price amount">
@@ -146,6 +145,20 @@
                 <div class="title">Product Title</div>
                 <div class="price">$0.00</div>
             </div>
+        </div>
+    </template>
+
+    <template id="variation-group-template">
+        <div class="variation-group">
+            <div class="variation-header">
+                <input class="variation-name" type="text" value="Variation" />
+                <button type="button" class="remove-variation">Remove</button>
+            </div>
+            <div class="input-inline">
+                <input class="variation-tag-input" type="text" placeholder="Add tag" />
+                <button class="add-variation-tag selector" type="button">Add</button>
+            </div>
+            <div class="chip-list variation-tags"></div>
         </div>
     </template>
 
