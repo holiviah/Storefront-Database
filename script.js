@@ -1,4 +1,7 @@
 // Simple product dashboard interactions (no backend)
+// API_BASE can be set on the window (e.g. `window.API_BASE = 'http://localhost:3000'`) to point
+// the frontend to a specific backend when the UI is hosted elsewhere (like Vercel).
+const API_BASE = (typeof window !== 'undefined' && window.API_BASE) ? window.API_BASE.replace(/\/$/, '') : '';
 document.addEventListener('DOMContentLoaded', () => {
     try {
         // Determine whether this is the public or admin page.
@@ -120,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // load products from server
     async function loadProducts(){
         try{
-            const res = await fetch('/api/products');
+            const res = await fetch(`${API_BASE}/api/products`);
             if(!res.ok) throw new Error('failed');
             products = await res.json();
         }catch(e){
@@ -284,10 +287,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // attempt to POST to the same origin first
                 let res;
                 try {
-                    res = await fetch('/api/products', { method: 'POST', body: formData });
+                    res = await fetch(`${API_BASE}/api/products`, { method: 'POST', body: formData });
                 } catch (networkErr) {
-                    // if we're likely running the static Live Server (port 5500), try the backend at localhost:3000
-                    console.warn('Primary POST failed, retrying against http://localhost:3000', networkErr);
+                    // if primary failed (CORS or network), try a localhost fallback useful during development
+                    console.warn(`Primary POST to ${API_BASE || '/'} failed, retrying against http://localhost:3000`, networkErr);
                     try {
                         res = await fetch('http://localhost:3000/api/products', { method: 'POST', body: formData });
                     } catch (retryErr) {
@@ -306,9 +309,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     created = await res.json();
                 } catch (parseErr) {
+                    // server returned non-JSON (often an HTML error page). Attempt a JSON-only fallback
                     const txt = await res.text().catch(() => '<<unreadable response>>');
                     console.warn('Failed to parse JSON response from /api/products:', parseErr, txt);
-                    throw new Error('Error saving product: Failed to parse server response: ' + String(txt));
+
+                    // Build a JSON-only payload (no files) from the form
+                    const jsonPayload = {};
+                    ['title','description','price','currency','shipping','shippingType','status'].forEach(name => {
+                        const el = editForm.querySelector(`[name="${name}"]`);
+                        jsonPayload[name] = el ? el.value : '';
+                    });
+                    jsonPayload.categories = categories.slice();
+                    jsonPayload.variations = variationGroups.slice();
+
+                    // Try fallback to localhost backend (useful when frontend is served from Vercel and backend runs locally)
+                    try {
+                        // Try fallback to API_BASE first, then localhost if that fails
+                        const fallbackCandidates = [];
+                        if (API_BASE) fallbackCandidates.push(`${API_BASE}/api/products`);
+                        fallbackCandidates.push('http://localhost:3000/api/products');
+                        let fallbackRes = null;
+                        for (const url of fallbackCandidates) {
+                            try {
+                                fallbackRes = await fetch(url, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(jsonPayload)
+                                });
+                                if (fallbackRes && fallbackRes.ok) break; // success
+                            } catch (e) {
+                                console.warn('Fallback attempt failed for', url, e);
+                                fallbackRes = null;
+                            }
+                        }
+                        if (fallbackRes && fallbackRes.ok) {
+                            try { created = await fallbackRes.json(); } catch (e) { created = null; }
+                        } else {
+                            const ftext = await (fallbackRes ? fallbackRes.text() : Promise.resolve('no response'));
+                            throw new Error('Fallback save failed: ' + (ftext || 'no response'));
+                        }
+                    } catch (fallbackErr) {
+                        throw new Error('Error saving product: Failed to parse server response and fallback failed: ' + String(txt || fallbackErr.message));
+                    }
                 }
                 // close edit view
                 document.querySelector('.products-grid').style.display = '';
@@ -614,9 +656,9 @@ async function loadOtherProducts(currentProductId, allProducts) {
 }
 
 // API functions
-async function getProducts() {
+    async function getProducts() {
     try {
-        const response = await fetch('/api/products');
+        const response = await fetch(`${API_BASE}/api/products`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

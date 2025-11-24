@@ -1,121 +1,115 @@
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
+const multer = require('multer');
 const path = require('path');
-const url = require('url');
+const fs = require('fs');
+const morgan = require('morgan');
+const cors = require('cors');
 
-const PORT = 3000;
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-const mimeTypes = {
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.js': 'text/javascript',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.svg': 'image/svg+xml'
-};
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'public', 'uploads');
+fs.mkdirSync(uploadsDir, { recursive: true });
 
-// In-memory storage for products
+// Simple in-memory product store (replace with DB in production)
 let products = [
-    { 
-        _id: '1', 
-        name: 'Sample Product', 
+    {
+        _id: '1',
+        name: 'Sample Product',
         description: 'This is a sample product',
         price: 29.99,
         category: 'General',
-        image: null,
+        images: [],
+        variations: [],
         createdAt: new Date()
     }
 ];
 
-const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
-    const pathname = parsedUrl.pathname;
-
-    // CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    // Handle preflight requests
-    if (req.method === 'OPTIONS') {
-        res.writeHead(200);
-        res.end();
-        return;
+// Multer disk storage
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadsDir),
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        const name = `${Date.now()}-${Math.random().toString(36).slice(2,8)}${ext}`;
+        cb(null, name);
     }
+});
+const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
-    // API Routes
-    if (pathname === '/api/products') {
-        if (req.method === 'GET') {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(products));
-            return;
-        }
-        
-        if (req.method === 'POST') {
-            let body = '';
-            req.on('data', chunk => {
-                body += chunk.toString();
-            });
-            req.on('end', () => {
-                try {
-                    const productData = JSON.parse(body);
-                    const product = {
-                        _id: Date.now().toString(),
-                        name: productData.name || 'Untitled Product',
-                        description: productData.description || '',
-                        price: parseFloat(productData.price) || 0,
-                        category: productData.category || 'General',
-                        image: productData.image || null,
-                        createdAt: new Date()
-                    };
-                    products.push(product);
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(product));
-                } catch (error) {
-                    res.writeHead(400, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: 'Invalid JSON' }));
-                }
-            });
-            return;
-        }
-    }
+app.use(morgan('dev'));
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(uploadsDir));
 
-    if (pathname.startsWith('/api/products/') && req.method === 'DELETE') {
-        const id = pathname.split('/')[3];
-        products = products.filter(p => p._id !== id);
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true }));
-        return;
-    }
-
-    // Static file serving
-    let filePath = '.' + pathname;
-    if (filePath === './') filePath = './index.html';
-
-    const extname = path.extname(filePath);
-    const contentType = mimeTypes[extname] || 'application/octet-stream';
-
-    fs.readFile(filePath, (err, content) => {
-        if (err) {
-            if (err.code === 'ENOENT') {
-                res.writeHead(404);
-                res.end('404 Not Found');
-            } else {
-                res.writeHead(500);
-                res.end('Server Error');
-            }
-        } else {
-            res.writeHead(200, { 'Content-Type': contentType });
-            res.end(content, 'utf-8');
-        }
-    });
+// GET products
+app.get('/api/products', (req, res) => {
+    res.json(products);
 });
 
-server.listen(PORT, () => {
+// POST product (multipart/form-data with images)
+app.post('/api/products', upload.array('images'), (req, res) => {
+    try {
+        // fields may come from multipart or JSON fallback
+        const body = req.body || {};
+        const title = body.title || body.name || body.title || 'Untitled Product';
+        const description = body.description || '';
+        const price = parseFloat(body.price) || 0;
+        const category = body.category || 'General';
+
+        // parse variations if provided as JSON string
+        let variations = [];
+        if (body.variations) {
+            try { variations = JSON.parse(body.variations); } catch (e) { variations = body.variations; }
+        }
+
+        const images = (req.files || []).map(f => `/uploads/${f.filename}`);
+
+        const product = {
+            _id: Date.now().toString(),
+            name: title,
+            description,
+            price,
+            category,
+            images,
+            variations,
+            createdAt: new Date()
+        };
+        products.push(product);
+        res.json(product);
+    } catch (err) {
+        console.error('Error creating product:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// DELETE
+app.delete('/api/products/:id', (req, res) => {
+    const id = req.params.id;
+    products = products.filter(p => p._id !== id);
+    res.json({ success: true });
+});
+
+// Serve static files from repo root for local testing (admin.html etc.)
+app.use(express.static(path.join(__dirname)));
+
+// 404 handler for everything else
+app.use((req, res, next) => {
+    res.status(404).json({ error: 'Not found' });
+});
+
+// Error handler (returns JSON always)
+app.use((err, req, res, next) => {
+    console.error('Unhandled error:', err);
+    const status = err.status || 500;
+    res.status(status).json({ error: err.message || 'Internal server error' });
+});
+
+app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
     console.log('API endpoints available:');
     console.log('  GET /api/products');
-    console.log('  POST /api/products');
+    console.log('  POST /api/products (multipart/form-data)');
     console.log('  DELETE /api/products/:id');
 });
