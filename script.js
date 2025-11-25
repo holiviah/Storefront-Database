@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.style.cursor = 'pointer';
             card.innerHTML = `
                 <div class="thumb">
-                    <img src="${p.image || 'img/placeholder.png'}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
+                    <img src="${(p.images && p.images.length) ? p.images[0] : (p.image || 'img/placeholder.png')}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
                     <input class="select" type="checkbox" />
                 </div>
                 <div class="meta">
@@ -671,7 +671,7 @@ async function renderPublicGrid(filterCategory = 'all', searchQuery = '') {
         
         grid.innerHTML = products.map(product => `
             <div class="product-card" onclick="navigateToProduct('${product._id}')" style="cursor: pointer;">
-                <img src="${product.image || 'img/placeholder.png'}" alt="${product.name || product.title}" />
+                <img src="${(product.images && product.images.length) ? product.images[0] : (product.image || 'img/placeholder.png')}" alt="${product.name || product.title}" />
                 <div class="title">${escapeHtml(product.name || product.title)}</div>
                 <div class="price">$${parseFloat(product.price).toFixed(2)}</div>
             </div>
@@ -700,7 +700,7 @@ async function loadOtherProducts(currentProductId, allProducts) {
     
     otherProductsGrid.innerHTML = otherProducts.map(product => `
         <div class="product-card" onclick="navigateToProduct('${product._id}')" style="cursor: pointer;">
-            <img src="${product.image || 'img/placeholder.png'}" alt="${product.name || product.title}" />
+            <img src="${(product.images && product.images.length) ? product.images[0] : (product.image || 'img/placeholder.png')}" alt="${product.name || product.title}" />
             <div class="title">${escapeHtml(product.name || product.title)}</div>
             <div class="price">$${parseFloat(product.price).toFixed(2)}</div>
         </div>
