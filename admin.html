@@ -162,20 +162,9 @@
         </div>
     </template>
 
-    <!-- Set API_BASE automatically for local development (keeps deployed site unchanged) -->
     <script>
-        (function(){
-            try {
-                var host = window.location.hostname;
-                // If running on localhost or 127.x, point API_BASE at same origin so fetches go to local server
-                if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local')) {
-                    window.API_BASE = window.location.origin;
-                } else {
-                    // Default: use same-origin (empty) so deployed frontend doesn't change behavior
-                    window.API_BASE = '';
-                }
-            } catch (e) { window.API_BASE = ''; }
-        })();
+        // Always point to Vercel deployment for API calls
+        window.API_BASE = 'https://storefront-database.vercel.app';
     </script>
     <script src="script.js"></script>
 </body>

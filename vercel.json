@@ -1,10 +1,12 @@
 {
   "version": 2,
   "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" },
     { "src": "**/*.html", "use": "@vercel/static" },
     { "src": "**/*.{css,js,png,jpg,jpeg,svg,webp}", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/api/products", "dest": "/api/products.js" },
     { "src": "/$", "dest": "/admin.html" },
     { "src": "^/(.*)$", "dest": "/$1" }
   ]
