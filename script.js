@@ -529,21 +529,72 @@ async function showProductDetail(productId) {
         const backBtn = document.getElementById('back-btn');
         
         if (detailImage) {
-            detailImage.src = product.image || 'img/placeholder.png';
+            // show first image if available
+            detailImage.src = (product.images && product.images.length) ? product.images[0] : (product.image || 'img/placeholder.png');
             detailImage.alt = product.name || product.title;
         }
         if (detailTitle) detailTitle.textContent = product.name || product.title;
         if (detailPrice) detailPrice.textContent = `$ ${parseFloat(product.price).toFixed(2)}`;
         if (detailDescription) detailDescription.textContent = product.description || 'No description available.';
-        
-        // Set up add to cart button
-        const addToCartBtn = document.getElementById('add-to-cart-btn');
-        if (addToCartBtn) {
-            addToCartBtn.onclick = function(e) {
+
+        // Status
+        const statusEl = document.querySelector('.product-status');
+        if (statusEl) {
+            statusEl.textContent = (product.status || '');
+        }
+
+        // Render variation selects
+        const optionsContainer = document.querySelector('.product-options');
+        if (optionsContainer) {
+            // build selects for each variation group
+            optionsContainer.innerHTML = '';
+            const variationGroups = Array.isArray(product.variations) ? product.variations : [];
+            if (variationGroups.length === 0) {
+                // default single select
+                const defaultSelect = document.createElement('select');
+                defaultSelect.className = 'product-select';
+                const opt = document.createElement('option');
+                opt.textContent = 'Select Options';
+                defaultSelect.appendChild(opt);
+                optionsContainer.appendChild(defaultSelect);
+            } else {
+                variationGroups.forEach(group => {
+                    const label = document.createElement('label');
+                    label.className = 'variation-label';
+                    label.textContent = group.name || 'Option';
+                    const sel = document.createElement('select');
+                    sel.className = 'product-select';
+                    const placeholder = document.createElement('option');
+                    placeholder.textContent = `Select ${group.name}`;
+                    placeholder.value = '';
+                    sel.appendChild(placeholder);
+                    (Array.isArray(group.tags) ? group.tags : []).forEach(tag => {
+                        const o = document.createElement('option');
+                        o.value = tag;
+                        o.textContent = tag;
+                        sel.appendChild(o);
+                    });
+                    optionsContainer.appendChild(sel);
+                });
+            }
+
+            // Add the Add to Cart button (or reuse existing)
+            const addBtn = document.createElement('button');
+            addBtn.id = 'add-to-cart-btn';
+            addBtn.className = 'add-to-cart-btn';
+            addBtn.textContent = 'Add to Cart';
+            addBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                console.log('Add to cart clicked for product:', productId);
-                addToCart(productId);
-            };
+                // collect selected options
+                const selects = optionsContainer.querySelectorAll('select.product-select');
+                const selected = [];
+                selects.forEach(s => {
+                    if (s.value) selected.push(s.value);
+                });
+                // For now, add productId to cart; store selected options in cart item
+                addToCart(productId, selected);
+            });
+            optionsContainer.appendChild(addBtn);
         }
         
         // Load other products (excluding current one)
@@ -705,8 +756,8 @@ function updateCartCount() {
     }
 }
 
-async function addToCart(productId) {
-    console.log('Adding to cart:', productId);
+async function addToCart(productId, selectedOptions = []) {
+    console.log('Adding to cart:', productId, selectedOptions);
     
     const products = await getProducts();
     const product = products.find(p => p._id === productId);
@@ -716,7 +767,7 @@ async function addToCart(productId) {
         return;
     }
     
-    const existingItem = cart.find(item => item.productId === productId);
+    const existingItem = cart.find(item => item.productId === productId && JSON.stringify(item.options||[]) === JSON.stringify(selectedOptions));
     
     if (existingItem) {
         existingItem.quantity += 1;
@@ -726,7 +777,8 @@ async function addToCart(productId) {
             quantity: 1,
             name: product.name,
             price: product.price,
-            image: product.image
+            image: (product.images && product.images[0]) || product.image,
+            options: selectedOptions
         });
     }
     
