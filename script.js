@@ -687,47 +687,7 @@ async function createProduct(productData) {
     }
 }
 
-// Admin page functionality
-document.addEventListener('DOMContentLoaded', async () => {
-    // Check if we're on the public page
-    if (window.location.pathname.includes('public.html') || document.getElementById('product-grid')) {
-        await initializePage();
-        return;
-    }
-
-    // Admin page code
-    const productsGrid = document.getElementById('productsGrid');
-    const editSection = document.getElementById('editProductSection');
-    const backBtn = document.getElementById('backToDashboard');
-    
-    if (!productsGrid) return;
-
-    // Save button functionality
-    const saveBtn = editSection?.querySelector('.btn-primary');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            
-            const form = editSection.querySelector('.edit-form');
-            const productData = {
-                name: form.querySelector('input[placeholder="Title"]').value,
-                description: form.querySelector('textarea').value,
-                price: form.querySelector('input[placeholder="$0.00"]').value,
-                category: 'General'
-            };
-
-            try {
-                await createProduct(productData);
-                await render();
-                hideEditSection();
-                alert('Product saved successfully!');
-            } catch (error) {
-                alert('Error saving product: ' + error.message);
-            }
-        });
-    }
-
-    // Cart functionality
+// Cart functionality
 let cart = JSON.parse(localStorage.getItem('revamp_cart') || '[]');
 
 function saveCart() {
@@ -864,7 +824,6 @@ window.closeCart = closeCart;
 window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
 window.updateQuantity = updateQuantity;
-});
 
 async function showProductGrid() {
     const gridView = document.getElementById('grid-view');
