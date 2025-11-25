@@ -1,6 +1,5 @@
 // Vercel serverless function for /api/products
 import { put } from '@vercel/blob';
-import multiparty from 'multiparty';
 
 // In-memory product store (replace with Prisma/DB for production)
 let products = [
@@ -16,46 +15,63 @@ let products = [
   }
 ];
 
-// Helper to parse multipart form data
-function parseMultipart(req) {
-  return new Promise((resolve, reject) => {
-    const form = new multiparty.Form();
-    const fields = {};
-    const files = [];
+// Helper to parse Vercel's multipart request body
+async function parseFormData(req) {
+  const contentType = req.headers['content-type'] || '';
+  if (!contentType.includes('multipart/form-data')) {
+    return { fields: {}, files: [] };
+  }
 
-    form.on('field', (name, value) => {
-      if (fields[name]) {
-        if (Array.isArray(fields[name])) {
-          fields[name].push(value);
-        } else {
-          fields[name] = [fields[name], value];
-        }
-      } else {
-        fields[name] = value;
-      }
-    });
+  // Vercel provides body as buffer, we need to parse it manually
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(chunk);
+  }
+  const buffer = Buffer.concat(chunks);
+  
+  // Parse multipart boundary
+  const boundary = contentType.split('boundary=')[1];
+  if (!boundary) return { fields: {}, files: [] };
 
-    form.on('part', (part) => {
-      if (part.filename) {
-        const chunks = [];
-        part.on('data', (chunk) => chunks.push(chunk));
-        part.on('end', () => {
-          files.push({
-            fieldname: part.name,
-            originalname: part.filename,
-            mimetype: part.headers['content-type'],
-            buffer: Buffer.concat(chunks)
-          });
-        });
-      } else {
-        part.resume();
-      }
-    });
+  const parts = buffer.toString('binary').split(`--${boundary}`);
+  const fields = {};
+  const files = [];
 
-    form.on('close', () => resolve({ fields, files }));
-    form.on('error', reject);
-    form.parse(req);
-  });
+  for (const part of parts) {
+    if (!part || part === '--\r\n' || part === '--') continue;
+    
+    const [headerSection, ...bodyParts] = part.split('\r\n\r\n');
+    if (!headerSection) continue;
+    
+    const bodyContent = bodyParts.join('\r\n\r\n').replace(/\r\n$/, '');
+    
+    // Parse headers
+    const nameMatch = headerSection.match(/name="([^"]+)"/);
+    const filenameMatch = headerSection.match(/filename="([^"]+)"/);
+    const contentTypeMatch = headerSection.match(/Content-Type: (.+)/);
+    
+    if (!nameMatch) continue;
+    const fieldName = nameMatch[1];
+    
+    if (filenameMatch) {
+      // It's a file
+      const filename = filenameMatch[1];
+      const mimeType = contentTypeMatch ? contentTypeMatch[1].trim() : 'application/octet-stream';
+      const fileBuffer = Buffer.from(bodyContent, 'binary');
+      
+      files.push({
+        fieldname: fieldName,
+        originalname: filename,
+        mimetype: mimeType,
+        buffer: fileBuffer
+      });
+    } else {
+      // It's a regular field
+      fields[fieldName] = bodyContent;
+    }
+  }
+
+  return { fields, files };
 }
 
 // Helper to upload buffer to Vercel Blob
@@ -95,7 +111,7 @@ export default async function handler(req, res) {
 
       if (contentType.includes('multipart/form-data')) {
         // Parse multipart form data
-        const { fields, files } = await parseMultipart(req);
+        const { fields, files } = await parseFormData(req);
         body = fields;
 
         // Upload images to Vercel Blob
