@@ -154,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const variationTemplate = document.getElementById('variation-group-template');
 
     function renderChips(list, container, type) {
+        if (!container) return; // Safety check
         container.innerHTML = '';
         list.forEach((item, idx) => {
             const chip = document.createElement('span');
@@ -259,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editForm.addEventListener('reset', () => {
             categories = [];
             variationGroups = [];
-            renderChips(categories, categoryChips, 'category');
+            if (categoryChips) renderChips(categories, categoryChips, 'category');
             renderVariationGroups();
         });
     }
